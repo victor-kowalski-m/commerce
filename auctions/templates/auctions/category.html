@@ -1,0 +1,48 @@
+{% extends "auctions/layout.html" %}
+
+{% block title %}
+    {{ category }} Listings
+{% endblock %}
+
+{% block body %}
+    <h2>Active {{ category }} Listings</h2>
+
+    {% for listing in listings reversed %}
+        <br><br>
+        <a href="{% url 'listing' listing.id %}">
+            <h4>{{ listing.title }}</h4>
+        </a>
+        <p>{{ listing.description }}</p>
+        <p>Category: 
+            {% if listing.category %}
+            {{ listing.category.name }}
+            {% else %}
+            Not defined
+            {% endif %}
+        </p>
+        {% if listing.image_url %}
+            <img src="{{ listing.image_url }}" alt="{{ listing.title }}" width="200" height="200">
+        {% endif %}
+        <p>Current bid:
+            {% if listing.bids.all %}
+                R$ {{ listing.bids.all.last.value }} 
+                {% if listing.bids.all.last.bidder.username == user.username %}
+                    by you
+                {% endif %}
+            {% else %}
+                (Starting bid) R$ {{ listing.starting_bid }} 
+            {% endif %}
+        </p>
+        <p>By 
+            {% if listing.announcer.username == user.username %}
+                you
+            {% else %}
+                {{ listing.announcer.username }}
+            {% endif %}
+            on {{ listing.date }}.</p>
+    {% empty %}
+        <h3>No listings yet.</h3>
+    {% endfor %}
+
+
+{% endblock %}

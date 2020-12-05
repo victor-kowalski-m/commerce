@@ -1,0 +1,107 @@
+{% extends "auctions/layout.html" %}
+{% load mathfilters %}
+
+{% block title %}
+    {{ listing.title }}
+{% endblock %}
+
+{% block body %}
+<h4>{{ listing.title }}</h4>
+<p>{{ listing.description }}</p>
+<p>Category: 
+    {% if listing.category %}
+    {{ listing.category.name }}
+    {% else %}
+    Not defined
+    {% endif %}
+</p>
+{% if listing.image_url %}
+    <img src="{{ listing.image_url }}" alt="{{ listing.title }}" width="200" height="200">
+{% endif %}
+<p>By 
+    {% if listing.announcer.username == user.username %}
+        you
+    {% else %}
+        {{ listing.announcer.username }}
+    {% endif %}
+    
+    on {{ listing.date }}.</p>
+
+{% if listing.opened %}
+
+{% if listing.announcer == user %}
+    <form action="{% url 'listing' listing.id %}" method="post">
+        {% csrf_token %}
+        <input type="submit" class="btn btn-danger" value="Close">
+    </form>
+{% else %}
+<form action="{% url 'watchlist' %}" method="post">
+    {% csrf_token %}
+    <input type="hidden" name="listing" value="{{ listing.id }}">
+    {% if watchlist %}
+        <input type="hidden" name="value" value="remove">
+        <input type="submit" class="btn btn-danger" value="Remove from watchlist">
+    {% else %}
+        <input type="hidden" name="value" value="add">
+        <input type="submit" class="btn btn-primary" value="Add to watchlist">
+    {% endif %}
+</form>
+{% endif %}
+<br>
+<p>Current bid:
+    {% if listing.bids.all %}
+        R$ {{ listing.bids.all.last.value }}
+        {% if listing.bids.all.last.bidder.username == user.username %}
+            by you
+        {% endif %}
+    {% else %}
+        (Starting bid) R$ {{ listing.starting_bid  }} 
+    {% endif %}
+</p>
+{% if listing.announcer != user %}
+<form action="{% url 'bid' listing.id %}" method="post">
+    {% csrf_token %}
+    <div class="form-group">
+        {% if listing.bids.all %}
+            <input class="form-control" type="number" name="value" placeholder="Value" required min="{{ listing.bids.all.last.value|addition:0.01 }}", step=".01">
+        {% else %}
+            <input class="form-control" type="number" name="value" placeholder="Value" required min="{{ listing.starting_bid|addition:0.01 }}", step=".01">
+        {% endif %}
+    </div>
+    <input class="btn btn-primary" type="submit" value="Bid">
+</form>
+{% endif %}
+<br>
+<p>Comments:</p>
+{% for comment in listing.comments.all %}
+    <p>{% if comment.author.username == user.username %}
+            You
+        {% else %}
+        {{ comment.author.username }}
+        {% endif %}
+        on {{ comment.date }}:</p>
+    <p>{{ comment.content }}</p>
+{% empty %}
+    <p>No comments.</p>
+{% endfor %}
+<form action="{% url 'comment' listing.id %}" method="post">
+    {% csrf_token %}
+    <div class="form-group">
+        <textarea class="form-control" name="content" placeholder="Comment"></textarea>
+    </div>
+    <input class="btn btn-primary" type="submit" value="Comment">
+</form>
+{% else %}
+    <p>Listing closed</p>
+    {% if listing.announcer == user %}
+        <form action="{% url 'listing' listing.id %}" method="post">
+            {% csrf_token %}
+            <input type="submit" class="btn btn-primary" value="Open">
+        </form>
+    {% endif %}
+
+    {% if listing.bids.all and listing.bids.all.last.bidder == user %}
+        You won!!!
+    {% endif %}
+{% endif %}
+{% endblock %}
