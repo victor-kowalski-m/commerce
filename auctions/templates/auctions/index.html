@@ -23,7 +23,7 @@
             {% if listing.bids.all %}
                 R$ {{ listing.bids.all.last.value }} 
                 {% if listing.bids.all.last.bidder.username == user.username %}
-                    by you
+                    by <b>you</b>
                 {% endif %}
             {% else %}
                 (Starting bid) R$ {{ listing.starting_bid }} 
@@ -31,9 +31,9 @@
         </p>
         <p>By 
             {% if listing.announcer.username == user.username %}
-                you
+                <b>you</b>
             {% else %}
-                {{ listing.announcer.username }}
+                <b>{{ listing.announcer.username }}</b>
             {% endif %}
             on {{ listing.date }}.</p>
     {% empty %}

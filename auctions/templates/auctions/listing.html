@@ -20,9 +20,9 @@
 {% endif %}
 <p>By 
     {% if listing.announcer.username == user.username %}
-        you
+        <b>you</b>
     {% else %}
-        {{ listing.announcer.username }}
+        <b>{{ listing.announcer.username }}</b>
     {% endif %}
     
     on {{ listing.date }}.</p>
@@ -52,7 +52,7 @@
     {% if listing.bids.all %}
         R$ {{ listing.bids.all.last.value }}
         {% if listing.bids.all.last.bidder.username == user.username %}
-            by you
+            by <b>you</b>
         {% endif %}
     {% else %}
         (Starting bid) R$ {{ listing.starting_bid  }} 
@@ -75,9 +75,9 @@
 <p>Comments:</p>
 {% for comment in listing.comments.all %}
     <p>{% if comment.author.username == user.username %}
-            You
+        <b>You</b>
         {% else %}
-        {{ comment.author.username }}
+        <b>{{ comment.author.username }}</b>
         {% endif %}
         on {{ comment.date }}:</p>
     <p>{{ comment.content }}</p>
